@@ -129,16 +129,18 @@ func resourceCdnFrontDoorOrigin() *pluginsdk.Resource {
 
 						"target_type": {
 							Type:     pluginsdk.TypeString,
-							Optional: true,
-							ValidateFunc: validation.StringInSlice([]string{
-								"blob",
-								"blob_secondary",
-								"Gateway",
-								"managedEnvironments",
-								"sites",
-								"web",
-								"web_secondary",
-							}, false),
+							Optional: true, 		// Optional because, when target is an Azure Load Balancer, this should not be filled
+							ValidateFunc: validation.Any(validation.StringInSlice([]string{
+								"blob", 		// when target resource is Storage Account (Blob)
+								"blob_secondary", 	// when target resource is Storage Account (Blob) (2nd Region)
+								"Gateway", 		// when target resource is API Management
+								"managedEnvironments", 	// when target resource is Container Apps
+								"sites", 		// when target resource is App Service (Web App)
+								"web", 			// when target resource is Storage Account (Static Web Site)
+								"web_secondary", 	// when target resource is Storage Account (Static Web Site) (2nd Region)
+							},
+							validation.StringIsNotEmpty, 	// when target resource is Azure Application Gateway, this should be filled with App Gw Frontend IP Configuration name
+							false),
 						},
 					},
 				},
